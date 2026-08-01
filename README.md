@@ -1,5 +1,3 @@
-Here's a simple and professional `README.md` for your project.
-
 # RTSP Frame Capture Template
 
 A simple and reusable Python template for capturing frames from an RTSP stream with **low latency**, **automatic reconnection**, and **threaded frame grabbing** using OpenCV.
