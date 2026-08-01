@@ -1,6 +1,6 @@
 {
     "camera": {
-        "rtsp_url": "rtsp://192.168.3.30:8554/46845439-217b-4e4b-a2c0-8c0968572969",
+        "rtsp_url": "rtsp://ip:port/cam_id",
         "frame_skip": 3,
         "ffmpeg_options": "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay|max_delay;500000|analyzeduration;1000000|probesize;1000000"
     },
@@ -11,8 +11,4 @@
         "window_height": 720,
         "fullscreen": false
     }
-}{
-    "rtsp_url": "rtsp://ip:port/cam_id",
-    "frame_skip": 10,
-    "ffmpeg_options": "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay|max_delay;500000|analyzeduration;1000000|probesize;1000000"
 }
