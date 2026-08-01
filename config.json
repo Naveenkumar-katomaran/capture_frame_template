@@ -1,0 +1,5 @@
+{
+    "rtsp_url": "rtsp://ip:port/cam_id",
+    "frame_skip": 10,
+    "ffmpeg_options": "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay|max_delay;500000|analyzeduration;1000000|probesize;1000000"
+}
