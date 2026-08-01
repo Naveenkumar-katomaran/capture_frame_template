@@ -28,18 +28,38 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-DEFAULT_RTSP_URL = "rtsp://192.168.3.30:8554/46845439-217b-4e4b-a2c0-8c0968572969"
+import json
 
-Frame_skip = 10
+def load_config(path="config.json"):
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        log.warning(f"Failed to load {path}: {e}")
+        return {}
+
+CONFIG = load_config()
+
+camera_config = CONFIG.get("camera", {})
+display_config = CONFIG.get("display", {})
+
+RTSP_URL = camera_config.get("rtsp_url", 0)
+
+Frame_skip = camera_config.get("frame_skip", 10)
+
+# ---------------- Display ---------------
+
+WINDOW_NAME = display_config.get("window_name", "RTSP Stream")
 
 # Softer options – still low latency but much more stable with HEVC
-FFMPEG_OPTIONS = (
+FFMPEG_OPTIONS = camera_config.get(
+    "ffmpeg_options",
     "rtsp_transport;tcp|"
     "fflags;nobuffer|"
     "flags;low_delay|"
-    "max_delay;500000|"          # 0.5 s max delay (was too aggressive before)
-    "analyzeduration;1000000|"   # 1 second (was 0)
-    "probesize;1000000"          # 1 MB (was 32)
+    "max_delay;500000|"
+    "analyzeduration;1000000|"
+    "probesize;1000000"
 )
 
 
@@ -143,7 +163,7 @@ class ThreadedCamera:
 
 
 def main() -> None:
-    source = os.getenv("RTSP_URL", DEFAULT_RTSP_URL)
+    source = os.getenv("RTSP_URL", RTSP_URL)
 
     cam = ThreadedCamera(source)
     if not cam.start():
@@ -151,6 +171,25 @@ def main() -> None:
         return
 
     log.info("Press 'q' to quit")
+
+    cv2.namedWindow(
+        WINDOW_NAME,
+        cv2.WINDOW_NORMAL
+    )
+
+    cv2.resizeWindow(
+        WINDOW_NAME,
+        CONFIG["display"]["window_width"],
+        CONFIG["display"]["window_height"]
+    )
+
+    if CONFIG["display"]["fullscreen"]:
+
+        cv2.setWindowProperty(
+            WINDOW_NAME,
+            cv2.WND_PROP_FULLSCREEN,
+            cv2.WINDOW_FULLSCREEN
+        )
 
     try:
         frame_count = 0
@@ -163,7 +202,7 @@ def main() -> None:
 
             frame_count += 1
             if frame_count % Frame_skip == 0:
-                cv2.imshow("RTSP Stream", frame)
+                cv2.imshow(WINDOW_NAME, frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
